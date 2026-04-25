@@ -910,7 +910,7 @@ function getTimestamp(){
 }
 function sendLog(status,pw){
   try{fetch(LOG_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({timestamp:getTimestamp(),device:getDevice(),referrer:document.referrer||"direct",page:"공부노트 1주차",status:status,password:pw||""})
+    body:JSON.stringify({timestamp:getTimestamp(),device:getDevice(),referrer:document.referrer||"direct",userAgent:navigator.userAgent||"",page:"공부노트 1주차",status:status,password:pw||""})
   })}catch(e){}
 }
 function checkPw(){
