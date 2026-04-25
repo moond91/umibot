@@ -42,9 +42,31 @@ body{font-family:'Pretendard','Noto Sans KR',-apple-system,sans-serif;color:#1a1
 .dx{margin:0 6px 10px 35px;padding:14px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;line-height:1.75;color:#334155;white-space:pre-wrap;word-break:keep-all}
 .sm{color:#ea580c;font-weight:700}
 .ft{text-align:center;padding:16px 0 8px;font-size:12px;color:#9ca3af}
+
+#pw-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'Pretendard','Noto Sans KR',sans-serif}
+#pw-screen .pw-box{text-align:center;padding:40px;max-width:340px;width:90%}
+#pw-screen h2{font-size:20px;font-weight:800;color:#1F2937;margin-bottom:8px}
+#pw-screen p{font-size:13px;color:#6B7280;margin-bottom:20px}
+#pw-screen input{width:100%;padding:14px;font-size:18px;text-align:center;border:2px solid #D1D5DB;border-radius:12px;outline:none;font-family:inherit;letter-spacing:8px}
+#pw-screen input:focus{border-color:#F97316}
+#pw-screen button{margin-top:12px;width:100%;padding:14px;background:#F97316;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+#pw-screen .pw-err{color:#DC2626;font-size:12px;font-weight:700;margin-top:10px;display:none}
+#pw-screen .pw-logo{font-size:40px;margin-bottom:16px}
+.wrap{display:none}
 </style>
 </head>
 <body>
+
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-logo">🔐</div>
+    <h2>1주차 공부노트</h2>
+    <p>수강생 전용 자료입니다<br>비밀번호를 입력해주세요</p>
+    <input type="password" id="pw-input" maxlength="10" placeholder="••••" onkeyup="if(event.keyCode===13)checkPw()">
+    <button onclick="checkPw()">확인</button>
+    <div class="pw-err" id="pw-err">⚠️ 비밀번호가 틀렸습니다</div>
+  </div>
+</div>
 <div class="wrap" id="app"></div>
 <script>
 const DATA = [
@@ -868,6 +890,44 @@ API = 구글 데이터와 해피뷰어를 연결해주는 공식 통로(다리)
   },
 ];
 
+
+var LOG_URL="https://script.google.com/macros/s/AKfycbzL6HZL-HmGnNYFZ1Wl9-f75vn4SlDzExiKXSPHcp39GosqDkOHyQrA5EDGuQDZEJK9/exec";
+
+function getDevice(){
+  var ua=navigator.userAgent;var device="알수없음";
+  if(/iPhone/i.test(ua))device="iPhone";else if(/iPad/i.test(ua))device="iPad";
+  else if(/Android/i.test(ua))device="Android";else if(/Mac/i.test(ua))device="Mac";
+  else if(/Windows/i.test(ua))device="Windows";else if(/Linux/i.test(ua))device="Linux";
+  var browser="";
+  if(/Whale/i.test(ua))browser="Whale";else if(/Edg/i.test(ua))browser="Edge";
+  else if(/Chrome/i.test(ua))browser="Chrome";else if(/Safari/i.test(ua))browser="Safari";
+  else if(/Firefox/i.test(ua))browser="Firefox";
+  return device+(browser?" / "+browser:"");
+}
+function getTimestamp(){
+  var d=new Date();var pad=function(n){return n<10?"0"+n:n};
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+}
+function sendLog(status,pw){
+  try{fetch(LOG_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({timestamp:getTimestamp(),device:getDevice(),referrer:document.referrer||"direct",status:"1주차 공부노트 "+status,password:pw||""})
+  })}catch(e){}
+}
+function checkPw(){
+  var pw=document.getElementById("pw-input").value;
+  if(pw==="0424"){
+    document.getElementById("pw-screen").style.display="none";
+    document.querySelector(".wrap").style.display="block";
+    sendLog("성공","");render();
+  }else{
+    document.getElementById("pw-err").style.display="block";
+    document.getElementById("pw-input").value="";
+    document.getElementById("pw-input").style.borderColor="#DC2626";
+    setTimeout(function(){document.getElementById("pw-input").style.borderColor="#D1D5DB"},1500);
+    sendLog("실패",pw);
+  }
+}
+
 var checks={},openCats={},openDetails={},filter="all";
 DATA.forEach(function(c){openCats[c.id]=true});
 
@@ -933,7 +993,6 @@ document.getElementById("app").addEventListener("click",function(e){
   if(f){filter=f.dataset.f;render();return}
 });
 
-render();
 </script>
 </body>
 </html>
